@@ -1,5 +1,5 @@
 import { loadState, todayStr } from '../lib/storage.js';
-import { calcQuota, getSessionQueue } from '../lib/srs.js';
+import { buildSessionQueue } from '../lib/srs.js';
 import { navigate } from '../router.js';
 
 export function renderHome(container) {
@@ -7,10 +7,9 @@ export function renderHome(container) {
   if (!state) { navigate('/onboarding'); return; }
 
   const memorizedCount = Object.keys(state.pages).length;
-  const quota = calcQuota(memorizedCount);
-  const queue = getSessionQueue(state.pages, quota);
+  const queue = buildSessionQueue(state);
   const today = todayStr();
-  const overdueCount = Object.values(state.pages).filter(p => p.dueDate <= today).length;
+  const overdueCount = Object.values(state.pages).filter(p => p.active !== false && p.dueDate <= today).length;
   const doneToday = state.streak.lastSessionDate === today;
   const streak = state.streak.current;
 
@@ -35,7 +34,7 @@ export function renderHome(container) {
           <div class="review-cta card">
             <h2>Today's Review</h2>
             <p class="quota-info">
-              <strong>${quota}</strong> pages to review
+              <strong>${queue.length}</strong> to review
               ${overdueCount > 0 ? `<span class="overdue-badge">${overdueCount} overdue</span>` : ''}
             </p>
             <button class="btn-primary btn-large" id="start-review">Start Review</button>

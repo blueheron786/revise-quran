@@ -1,4 +1,5 @@
 import { todayStr } from './storage.js';
+import { getSurahGroupsForJuz } from './quran.js';
 
 /**
  * SM-2 adapted for Hifz review.
@@ -45,7 +46,7 @@ export function scheduleReview(page, rating) {
 
 /**
  * Returns up to `quota` pages sorted by dueDate ascending (most overdue first).
- * Pages that are not yet due are included if we don't have enough overdue ones.
+ * Excludes pages with active === false.
  *
  * @param {object} pages  - state.pages map
  * @param {number} quota
@@ -53,13 +54,69 @@ export function scheduleReview(page, rating) {
  */
 export function getSessionQueue(pages, quota) {
   return Object.entries(pages)
+    .filter(([, data]) => data.active !== false)
     .map(([num, data]) => ({ num: Number(num), ...data }))
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
     .slice(0, quota);
 }
 
 /**
- * Daily review quota: 10% of memorized pages, minimum 1.
+ * Builds a session queue that handles both page-mode and surah-mode juz.
+ * Items are typed: { type:'page', num, ... } or { type:'surah', surahNum, surahName, pageNums, firstWords, dueDate, juz }
+ *
+ * @param {object} state - full app state
+ * @returns {Array}
+ */
+export function buildSessionQueue(state) {
+  const juzSettings = state.juzSettings || {};
+  const surahModeJuz = new Set(
+    Object.entries(juzSettings)
+      .filter(([, s]) => s.reviewMode === 'surah')
+      .map(([k]) => Number(k))
+  );
+
+  const items = [];
+
+  // Surah-mode juz: group active pages by surah
+  for (const juzNum of surahModeJuz) {
+    if (!state.memorizedJuz?.includes(juzNum)) continue;
+    const groups = getSurahGroupsForJuz(juzNum);
+    for (const g of groups) {
+      const activePages = g.pages
+        .map(p => ({ p, rec: state.pages[String(p)] }))
+        .filter(({ rec }) => rec && rec.active !== false);
+      if (activePages.length === 0) continue;
+      const dueDate = activePages.reduce(
+        (min, { rec }) => (rec.dueDate < min ? rec.dueDate : min),
+        '9999-99-99'
+      );
+      items.push({
+        type: 'surah',
+        juz: juzNum,
+        surahNum: g.surahNum,
+        surahName: g.surahName,
+        pageNums: activePages.map(({ p }) => p),
+        firstWords: g.firstWords,
+        dueDate,
+      });
+    }
+  }
+
+  // Page-mode juz: individual active pages
+  for (const [num, data] of Object.entries(state.pages)) {
+    if (!surahModeJuz.has(data.juz) && data.active !== false) {
+      items.push({ type: 'page', num: Number(num), ...data });
+    }
+  }
+
+  const quota = calcQuota(items.length);
+  return items
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+    .slice(0, quota);
+}
+
+/**
+ * Daily review quota: 10% of total review units (pages or surah groups), minimum 1.
  */
 export function calcQuota(memorizedPageCount) {
   return Math.max(1, Math.ceil(memorizedPageCount * 0.1));

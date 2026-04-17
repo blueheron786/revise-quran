@@ -20,8 +20,9 @@ export function clearState() {
 /**
  * @param {number[]} memorizedJuz - sorted array of juz numbers
  * @param {Array<[number, number]>} pagesByJuz - [[pageNum, juzNum], ...]
+ * @param {object} juzSettings - per-juz settings, e.g. { "30": { reviewMode: "surah" } }
  */
-export function initState(memorizedJuz, pagesByJuz) {
+export function initState(memorizedJuz, pagesByJuz, juzSettings = {}) {
   const today = todayStr();
   const pages = {};
   for (const [pageNum, juzNum] of pagesByJuz) {
@@ -39,6 +40,7 @@ export function initState(memorizedJuz, pagesByJuz) {
     pages,
     streak: { current: 0, lastSessionDate: null },
     sessions: [],
+    juzSettings,
   };
 }
 
