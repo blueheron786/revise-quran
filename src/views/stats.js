@@ -35,7 +35,8 @@ export function renderStats(container) {
   );
 
   const totalSessions = sessions.length;
-  const avgPerSession = totalSessions ? Math.round(sessions.reduce((a, s) => a + (s.reviewed || 0), 0) / totalSessions) : 0;
+  const totalPagesReviewed = sessions.reduce((a, s) => a + (s.reviewed || 0), 0);
+  const avgPerSession = totalSessions ? Math.round(totalPagesReviewed / totalSessions) : 0;
 
   container.innerHTML = `
     <div class="stats">
@@ -55,6 +56,17 @@ export function renderStats(container) {
         <div class="stat-card card">
           <span class="stat-big">${fullJuzCount}</span>
           <span class="stat-label">Juz complete${partialJuzCount > 0 ? `<br><span class="stat-sub">+${partialJuzCount} partial</span>` : ''}</span>
+        </div>
+      </div>
+
+      <div class="stats-activity">
+        <div class="stat-card card">
+          <span class="stat-big">${totalSessions}</span>
+          <span class="stat-label">Days reviewed</span>
+        </div>
+        <div class="stat-card card">
+          <span class="stat-big">${totalPagesReviewed}</span>
+          <span class="stat-label">Total pages reviewed</span>
         </div>
       </div>
 
