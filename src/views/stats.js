@@ -1,11 +1,16 @@
 import { loadState } from '../lib/storage.js';
+import { getPagesForJuz } from '../lib/quran.js';
 import { navigate } from '../router.js';
 
 export function renderStats(container) {
   const state = loadState();
   if (!state) { navigate('/onboarding'); return; }
 
-  const memorizedCount = Object.keys(state.pages).length;
+  const activePages = Object.values(state.pages).filter(p => p.active !== false).length;
+  const fullJuzCount = state.memorizedJuz.filter(juzNum =>
+    getPagesForJuz(juzNum).every(p => { const r = state.pages[String(p)]; return r && r.active !== false; })
+  ).length;
+  const partialJuzCount = state.memorizedJuz.length - fullJuzCount;
   const sessions = state.sessions || [];
 
   // Build last 14 days
@@ -44,12 +49,12 @@ export function renderStats(container) {
           <span class="stat-label">Day streak 🔥</span>
         </div>
         <div class="stat-card card">
-          <span class="stat-big">${memorizedCount}</span>
+          <span class="stat-big">${activePages}</span>
           <span class="stat-label">Pages memorized</span>
         </div>
         <div class="stat-card card">
-          <span class="stat-big">${state.memorizedJuz.length}</span>
-          <span class="stat-label">Juz complete</span>
+          <span class="stat-big">${fullJuzCount}</span>
+          <span class="stat-label">Juz complete${partialJuzCount > 0 ? `<br><span class="stat-sub">+${partialJuzCount} partial</span>` : ''}</span>
         </div>
       </div>
 
@@ -89,8 +94,12 @@ export function renderStats(container) {
       <div class="juz-section card">
         <h2>Memorized juz (${state.memorizedJuz.length} / 30)</h2>
         <div class="juz-chips">
-          ${state.memorizedJuz.map(j => `<span class="juz-chip">Juz ${j}</span>`).join('')}
+          ${state.memorizedJuz.map(j => {
+            const isPartial = !getPagesForJuz(j).every(p => { const r = state.pages[String(p)]; return r && r.active !== false; });
+            return `<span class="juz-chip${isPartial ? ' juz-chip-partial' : ''}">Juz ${j}${isPartial ? ' *' : ''}</span>`;
+          }).join('')}
         </div>
+        ${partialJuzCount > 0 ? `<p class="avg-note" style="margin-top:0.5rem">* partial pages selected</p>` : ''}
       </div>
 
       <nav class="bottom-nav" aria-label="Main navigation">

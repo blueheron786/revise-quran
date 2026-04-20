@@ -508,6 +508,15 @@ body {
   font-size: 0.8rem;
   font-weight: 600;
 }
+.juz-chip-partial {
+  background: #fff3e0;
+  color: var(--hard);
+}
+.stat-sub {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
 
 /* ============================================================
    SETTINGS

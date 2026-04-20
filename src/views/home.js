@@ -1,12 +1,17 @@
 import { loadState, todayStr } from '../lib/storage.js';
 import { buildSessionQueue } from '../lib/srs.js';
+import { getPagesForJuz } from '../lib/quran.js';
 import { navigate } from '../router.js';
 
 export function renderHome(container) {
   const state = loadState();
   if (!state) { navigate('/onboarding'); return; }
 
-  const memorizedCount = Object.keys(state.pages).length;
+  const activePages = Object.values(state.pages).filter(p => p.active !== false).length;
+  const fullJuzCount = state.memorizedJuz.filter(juzNum =>
+    getPagesForJuz(juzNum).every(p => { const r = state.pages[String(p)]; return r && r.active !== false; })
+  ).length;
+  const partialJuzCount = state.memorizedJuz.length - fullJuzCount;
   const queue = buildSessionQueue(state);
   const today = todayStr();
   const overdueCount = Object.values(state.pages).filter(p => p.active !== false && p.dueDate <= today).length;
@@ -43,12 +48,12 @@ export function renderHome(container) {
 
         <div class="home-stats">
           <div class="stat">
-            <span class="stat-value">${memorizedCount}</span>
+            <span class="stat-value">${activePages}</span>
             <span class="stat-label">Pages memorized</span>
           </div>
           <div class="stat">
-            <span class="stat-value">${state.memorizedJuz.length}</span>
-            <span class="stat-label">Juz complete</span>
+            <span class="stat-value">${fullJuzCount}</span>
+            <span class="stat-label">Juz complete${partialJuzCount > 0 ? `<br><span class="stat-sub">+${partialJuzCount} partial</span>` : ''}</span>
           </div>
         </div>
       </main>
