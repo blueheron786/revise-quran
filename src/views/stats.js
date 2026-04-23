@@ -2,6 +2,19 @@ import { loadState } from '../lib/storage.js';
 import { getPagesForJuz } from '../lib/quran.js';
 import { navigate } from '../router.js';
 
+function toRanges(nums) {
+  if (!nums.length) return '\u2014';
+  const sorted = [...nums].sort((a, b) => a - b);
+  const ranges = [];
+  let start = sorted[0], end = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === end + 1) { end = sorted[i]; }
+    else { ranges.push(start === end ? `${start}` : `${start}\u2013${end}`); start = end = sorted[i]; }
+  }
+  ranges.push(start === end ? `${start}` : `${start}\u2013${end}`);
+  return ranges.join(', ');
+}
+
 export function renderStats(container) {
   const state = loadState();
   if (!state) { navigate('/onboarding'); return; }
@@ -12,6 +25,14 @@ export function renderStats(container) {
   const bdHard    = activePagesList.filter(p => p.reviewCount > 0 && p.lastRating === 'hard').length;
   const bdMany    = activePagesList.filter(p => p.reviewCount > 0 && p.lastRating === 'many mistakes').length;
   const bdUnknown = activePagesList.filter(p => p.reviewCount === 0).length;
+
+  // Page lists per rating for the detail modal
+  const getPageNums = rating => Object.entries(state.pages)
+    .filter(([, p]) => p.active !== false && p.reviewCount > 0 && p.lastRating === rating)
+    .map(([n]) => Number(n)).sort((a, b) => a - b);
+  const bdCleanPages = getPageNums('easy');
+  const bdHardPages  = getPageNums('hard');
+  const bdManyPages  = getPageNums('many mistakes');
 
   const fullJuzCount = state.memorizedJuz.filter(juzNum =>
     getPagesForJuz(juzNum).every(p => { const r = state.pages[String(p)]; return r && r.active !== false; })
@@ -66,34 +87,42 @@ export function renderStats(container) {
       </div>
 
       <div class="page-breakdown card">
-        <h2>Page breakdown <span class="chart-subtitle">(${activePages} pages)</span></h2>
-        <div class="breakdown-bar" role="img" aria-label="Page memorization quality breakdown">
-          ${bdClean   > 0 ? `<div class="bb-seg bb-clean"   style="flex:${bdClean}"   title="${bdClean} clean"></div>`          : ''}
-          ${bdHard    > 0 ? `<div class="bb-seg bb-hard"    style="flex:${bdHard}"    title="${bdHard} hard"></div>`            : ''}
-          ${bdMany    > 0 ? `<div class="bb-seg bb-many"    style="flex:${bdMany}"    title="${bdMany} many mistakes"></div>`   : ''}
-          ${bdUnknown > 0 ? `<div class="bb-seg bb-unknown" style="flex:${bdUnknown}" title="${bdUnknown} not yet reviewed"></div>` : ''}
-        </div>
+        <h2><button class="bd-detail-btn" id="bd-open-btn">Page breakdown <span class="bd-chevron">›</span></button> <span class="chart-subtitle">(${activePages} pages)</span></h2>
         <div class="breakdown-legend">
           <div class="bd-item">
-            <span class="bd-dot bd-clean"></span>
-            <span class="bd-num">${bdClean}</span>
+            <span class="bd-num bd-clean">${bdClean}</span>
             <span class="bd-lbl">Easy</span>
           </div>
           <div class="bd-item">
-            <span class="bd-dot bd-hard"></span>
-            <span class="bd-num">${bdHard}</span>
+            <span class="bd-num bd-hard">${bdHard}</span>
             <span class="bd-lbl">Hard</span>
           </div>
           <div class="bd-item">
-            <span class="bd-dot bd-many"></span>
-            <span class="bd-num">${bdMany}</span>
+            <span class="bd-num bd-many">${bdMany}</span>
             <span class="bd-lbl">Mistakes</span>
           </div>
           <div class="bd-item">
-            <span class="bd-dot bd-unknown"></span>
-            <span class="bd-num">${bdUnknown}</span>
+            <span class="bd-num bd-unknown">${bdUnknown}</span>
             <span class="bd-lbl">Unknown</span>
           </div>
+        </div>
+        <div class="bd-detail" id="bd-detail" hidden>
+          ${bdCleanPages.length > 0 ? `
+          <div class="bd-modal-row">
+            <span class="bd-modal-label bd-clean">Easy</span>
+            <span class="bd-modal-pages">${toRanges(bdCleanPages)}</span>
+          </div>` : ''}
+          ${bdHardPages.length > 0 ? `
+          <div class="bd-modal-row">
+            <span class="bd-modal-label bd-hard">Hard</span>
+            <span class="bd-modal-pages">${toRanges(bdHardPages)}</span>
+          </div>` : ''}
+          ${bdManyPages.length > 0 ? `
+          <div class="bd-modal-row">
+            <span class="bd-modal-label bd-many">Mistakes</span>
+            <span class="bd-modal-pages">${toRanges(bdManyPages)}</span>
+          </div>` : ''}
+          ${bdCleanPages.length + bdHardPages.length + bdManyPages.length === 0 ? `<p class="bd-modal-empty">No pages reviewed yet.</p>` : ''}
         </div>
       </div>
 
@@ -162,5 +191,13 @@ export function renderStats(container) {
 
   container.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.route));
+  });
+
+  const bdOpenBtn = container.querySelector('#bd-open-btn');
+  const bdDetail  = container.querySelector('#bd-detail');
+  bdOpenBtn.addEventListener('click', () => {
+    const open = !bdDetail.hidden;
+    bdDetail.hidden = open;
+    bdOpenBtn.querySelector('.bd-chevron').textContent = open ? '›' : '⌄';
   });
 }
