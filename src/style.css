@@ -454,12 +454,54 @@ body {
 .stat-label { font-size: 0.7rem; color: var(--text-muted); }
 
 .chart-section  { margin: 0 1rem 0.75rem; }
+.page-breakdown,
 .ratings-section,
 .juz-section    { margin: 0 1rem 0.75rem; }
 .chart-section h2,
+.page-breakdown h2,
 .ratings-section h2,
 .juz-section h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; }
 .chart-subtitle { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+
+.breakdown-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 0.75rem;
+  background: var(--border);
+}
+.bb-seg {
+  transition: flex 0.4s ease;
+  min-width: 4px;
+}
+.bb-clean   { background: var(--easy); }
+.bb-hard    { background: var(--hard); }
+.bb-many    { background: var(--many-mistakes); }
+.bb-unknown { background: #bdbdbd; }
+
+.breakdown-legend {
+  display: flex;
+  justify-content: space-around;
+}
+.bd-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+.bd-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.bd-clean   { background: var(--easy); }
+.bd-hard    { background: var(--hard); }
+.bd-many    { background: var(--many-mistakes); }
+.bd-unknown { background: #bdbdbd; }
+.bd-num { font-size: 1.1rem; font-weight: 700; }
+.bd-lbl { font-size: 0.65rem; color: var(--text-muted); }
 
 .bar-chart {
   display: flex;

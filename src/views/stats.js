@@ -6,7 +6,13 @@ export function renderStats(container) {
   const state = loadState();
   if (!state) { navigate('/onboarding'); return; }
 
-  const activePages = Object.values(state.pages).filter(p => p.active !== false).length;
+  const activePagesList = Object.values(state.pages).filter(p => p.active !== false);
+  const activePages = activePagesList.length;
+  const bdClean   = activePagesList.filter(p => p.reviewCount > 0 && p.lastRating === 'easy').length;
+  const bdHard    = activePagesList.filter(p => p.reviewCount > 0 && p.lastRating === 'hard').length;
+  const bdMany    = activePagesList.filter(p => p.reviewCount > 0 && p.lastRating === 'many mistakes').length;
+  const bdUnknown = activePagesList.filter(p => p.reviewCount === 0).length;
+
   const fullJuzCount = state.memorizedJuz.filter(juzNum =>
     getPagesForJuz(juzNum).every(p => { const r = state.pages[String(p)]; return r && r.active !== false; })
   ).length;
@@ -56,6 +62,38 @@ export function renderStats(container) {
         <div class="stat-card card">
           <span class="stat-big">${fullJuzCount}</span>
           <span class="stat-label">Juz complete${partialJuzCount > 0 ? `<br><span class="stat-sub">+${partialJuzCount} partial</span>` : ''}</span>
+        </div>
+      </div>
+
+      <div class="page-breakdown card">
+        <h2>Page breakdown <span class="chart-subtitle">(${activePages} pages)</span></h2>
+        <div class="breakdown-bar" role="img" aria-label="Page memorization quality breakdown">
+          ${bdClean   > 0 ? `<div class="bb-seg bb-clean"   style="flex:${bdClean}"   title="${bdClean} clean"></div>`          : ''}
+          ${bdHard    > 0 ? `<div class="bb-seg bb-hard"    style="flex:${bdHard}"    title="${bdHard} hard"></div>`            : ''}
+          ${bdMany    > 0 ? `<div class="bb-seg bb-many"    style="flex:${bdMany}"    title="${bdMany} many mistakes"></div>`   : ''}
+          ${bdUnknown > 0 ? `<div class="bb-seg bb-unknown" style="flex:${bdUnknown}" title="${bdUnknown} not yet reviewed"></div>` : ''}
+        </div>
+        <div class="breakdown-legend">
+          <div class="bd-item">
+            <span class="bd-dot bd-clean"></span>
+            <span class="bd-num">${bdClean}</span>
+            <span class="bd-lbl">Easy</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-dot bd-hard"></span>
+            <span class="bd-num">${bdHard}</span>
+            <span class="bd-lbl">Hard</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-dot bd-many"></span>
+            <span class="bd-num">${bdMany}</span>
+            <span class="bd-lbl">Mistakes</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-dot bd-unknown"></span>
+            <span class="bd-num">${bdUnknown}</span>
+            <span class="bd-lbl">Unknown</span>
+          </div>
         </div>
       </div>
 
