@@ -504,10 +504,24 @@ body {
 .bd-modal-label.bd-hard  { color: var(--hard); }
 .bd-modal-label.bd-many  { color: var(--many-mistakes); }
 .bd-modal-pages {
-  font-size: 0.85rem;
-  color: var(--text);
-  word-break: break-word;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
 }
+.bd-page-chip {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--primary-light);
+  color: var(--primary);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.bd-page-chip:hover { border-color: var(--primary); }
+.bd-no-pages { font-size: 0.85rem; color: var(--text-muted); }
 .bd-modal-empty { font-size: 0.85rem; color: var(--text-muted); }
 
 .breakdown-legend {

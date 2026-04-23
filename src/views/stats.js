@@ -2,17 +2,11 @@ import { loadState } from '../lib/storage.js';
 import { getPagesForJuz } from '../lib/quran.js';
 import { navigate } from '../router.js';
 
-function toRanges(nums) {
-  if (!nums.length) return '\u2014';
-  const sorted = [...nums].sort((a, b) => a - b);
-  const ranges = [];
-  let start = sorted[0], end = sorted[0];
-  for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i] === end + 1) { end = sorted[i]; }
-    else { ranges.push(start === end ? `${start}` : `${start}\u2013${end}`); start = end = sorted[i]; }
-  }
-  ranges.push(start === end ? `${start}` : `${start}\u2013${end}`);
-  return ranges.join(', ');
+function toPageChips(nums) {
+  if (!nums.length) return '<span class="bd-no-pages">\u2014</span>';
+  return [...nums].sort((a, b) => a - b)
+    .map(n => `<a class="bd-page-chip" href="https://quran.com/page/${n}" target="_blank" rel="noopener noreferrer">${n}</a>`)
+    .join('');
 }
 
 export function renderStats(container) {
@@ -110,17 +104,17 @@ export function renderStats(container) {
           ${bdCleanPages.length > 0 ? `
           <div class="bd-modal-row">
             <span class="bd-modal-label bd-clean">Easy</span>
-            <span class="bd-modal-pages">${toRanges(bdCleanPages)}</span>
+            <div class="bd-modal-pages">${toPageChips(bdCleanPages)}</div>
           </div>` : ''}
           ${bdHardPages.length > 0 ? `
           <div class="bd-modal-row">
             <span class="bd-modal-label bd-hard">Hard</span>
-            <span class="bd-modal-pages">${toRanges(bdHardPages)}</span>
+            <div class="bd-modal-pages">${toPageChips(bdHardPages)}</div>
           </div>` : ''}
           ${bdManyPages.length > 0 ? `
           <div class="bd-modal-row">
             <span class="bd-modal-label bd-many">Mistakes</span>
-            <span class="bd-modal-pages">${toRanges(bdManyPages)}</span>
+            <div class="bd-modal-pages">${toPageChips(bdManyPages)}</div>
           </div>` : ''}
           ${bdCleanPages.length + bdHardPages.length + bdManyPages.length === 0 ? `<p class="bd-modal-empty">No pages reviewed yet.</p>` : ''}
         </div>
