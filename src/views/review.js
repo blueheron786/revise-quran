@@ -152,7 +152,11 @@ export function renderReview(container) {
 
     container.querySelector('#quit-review').addEventListener('click', () => {
       finalizeSession(currentIdx);
-      navigate('/home');
+      if (currentIdx > 0) {
+        showCompletion();
+      } else {
+        navigate('/home');
+      }
     });
   };
 
