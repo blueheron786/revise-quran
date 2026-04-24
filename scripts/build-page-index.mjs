@@ -48,11 +48,22 @@ const pageIndex = pageRefs.map((ref, i) => {
   return { page: pageNum, surahNum, surahName, ayahNum, firstWords };
 });
 
+// Build surah openings map: surahNum -> first 5 words of ayah 1
+const surahOpenings = {};
+for (const surah of quranData) {
+  const ayah1Text = verseMap[surah.id]?.[1] || '';
+  surahOpenings[surah.id] = ayah1Text.split(/\s+/).slice(0, 5).join(' ');
+}
+
 const outDir = join(__dirname, '..', 'src', 'data');
 mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, 'page-index.json');
 writeFileSync(outPath, JSON.stringify(pageIndex, null, 2), 'utf8');
 console.log(`\u2713 Wrote ${pageIndex.length} pages to ${outPath}`);
+
+const openingsPath = join(outDir, 'surah-openings.json');
+writeFileSync(openingsPath, JSON.stringify(surahOpenings, null, 2), 'utf8');
+console.log(`\u2713 Wrote ${Object.keys(surahOpenings).length} surah openings to ${openingsPath}`);
 
 // Spot-check
 console.log('Page   1:', pageIndex[0]);

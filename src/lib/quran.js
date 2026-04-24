@@ -1,5 +1,6 @@
 import pageIndex from '../data/page-index.json';
 import juzMap from '../data/juz-map.json';
+import surahOpenings from '../data/surah-openings.json';
 
 /** @returns {{ page, surahNum, surahName, ayahNum, firstWords } | null} */
 export function getPage(pageNum) {
@@ -37,7 +38,9 @@ export function getSurahGroupsForJuz(juzNum) {
         surahNum: info?.surahNum,
         surahName: info?.surahName ?? '',
         pages: [p],
-        firstWords: info?.firstWords ?? '',
+        // Use the true opening (ayah 1) of the surah, not the mid-surah words
+        // that may appear at the top of this page when the surah started on a previous page.
+        firstWords: (info?.ayahNum === 1 ? info?.firstWords : surahOpenings[String(info?.surahNum)]) ?? info?.firstWords ?? '',
       };
       groups.push(current);
     } else {
