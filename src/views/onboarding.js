@@ -6,7 +6,7 @@ export function renderOnboarding(container) {
   const selected = new Set();
   // per-juz review mode; default 'surah' for juz 28+, 'page' otherwise
   const selectedModes = {};
-  const getMode = (juzNum) => selectedModes[juzNum] ?? (juzNum >= 28 ? 'surah' : 'page');
+  const getMode = (juzNum) => selectedModes[juzNum] ?? 'page';
 
   const countPages = () => {
     let total = 0;

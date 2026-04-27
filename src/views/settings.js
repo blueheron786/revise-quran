@@ -6,7 +6,7 @@ import { navigate } from '../router.js';
 function renderPanel(container, juzNum, isManage) {
   const state = loadState();
   const getJuzMode = (n) =>
-    state.juzSettings?.[String(n)]?.reviewMode ?? (n >= 28 ? 'surah' : 'page');
+    state.juzSettings?.[String(n)]?.reviewMode ?? 'page';
 
   const juzInfo = juzMap.find(j => j.juz === juzNum);
   const allPages = getPagesForJuz(juzNum);
