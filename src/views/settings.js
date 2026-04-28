@@ -1,4 +1,4 @@
-import { loadState, saveState, clearState, todayStr } from '../lib/storage.js';
+import { loadState, saveState, clearState, todayStr, loadDarkMode, saveDarkMode } from '../lib/storage.js';
 import { getPagesForJuz, getSurahGroupsForJuz, juzMap } from '../lib/quran.js';
 import { navigate } from '../router.js';
 
@@ -7,6 +7,14 @@ function renderPanel(container, juzNum, isManage) {
   const state = loadState();
   const getJuzMode = (n) =>
     state.juzSettings?.[String(n)]?.reviewMode ?? 'page';
+
+  // Apply dark mode class to body
+  const isDarkMode = loadDarkMode();
+  if (isDarkMode) {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
 
   const juzInfo = juzMap.find(j => j.juz === juzNum);
   const allPages = getPagesForJuz(juzNum);
@@ -215,11 +223,22 @@ export function renderSettings(container) {
     state.juzSettings?.[String(juzNum)]?.reviewMode ?? (juzNum >= 28 ? 'surah' : 'page');
 
   const unmemorizedJuz = juzMap.filter(j => !state.memorizedJuz.includes(j.juz));
+  const isDarkMode = loadDarkMode();
+
+  // Apply dark mode class to body
+  if (isDarkMode) {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
 
   container.innerHTML = `
     <div class="settings">
       <header class="page-header">
         <h1>Settings</h1>
+        <button class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle dark mode">
+          ${isDarkMode ? '☀️' : '🌙'}
+        </button>
       </header>
 
       ${state.memorizedJuz.length > 0 ? `
@@ -299,6 +318,17 @@ export function renderSettings(container) {
 
   container.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.route));
+  });
+
+  container.querySelector('#dark-mode-toggle').addEventListener('click', () => {
+    const newDarkMode = !loadDarkMode();
+    saveDarkMode(newDarkMode);
+    if (newDarkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+    renderSettings(container); // Re-render to update icon
   });
 }
 

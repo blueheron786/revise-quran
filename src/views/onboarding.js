@@ -1,8 +1,16 @@
 import { navigate } from '../router.js';
-import { initState, saveState } from '../lib/storage.js';
+import { initState, saveState, loadDarkMode } from '../lib/storage.js';
 import { getPagesForJuz, juzMap } from '../lib/quran.js';
 
 export function renderOnboarding(container) {
+  // Apply dark mode class to body
+  const isDarkMode = loadDarkMode();
+  if (isDarkMode) {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
+
   const selected = new Set();
   // per-juz review mode; default 'surah' for juz 28+, 'page' otherwise
   const selectedModes = {};

@@ -1,4 +1,4 @@
-import { loadState, todayStr } from '../lib/storage.js';
+import { loadState, todayStr, loadDarkMode, saveDarkMode } from '../lib/storage.js';
 import { buildSessionQueue } from '../lib/srs.js';
 import { getPagesForJuz } from '../lib/quran.js';
 import { navigate } from '../router.js';
@@ -17,14 +17,27 @@ export function renderHome(container) {
   const overdueCount = Object.values(state.pages).filter(p => p.active !== false && p.dueDate <= today).length;
   const doneToday = state.streak.lastSessionDate === today;
   const streak = state.streak.current;
+  const isDarkMode = loadDarkMode();
+
+  // Apply dark mode class to body
+  if (isDarkMode) {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
 
   container.innerHTML = `
     <div class="home">
       <header class="home-header">
         <h1 class="app-title">Hifz Review</h1>
-        <div class="streak-badge" title="${streak} day streak">
-          <span aria-hidden="true">🔥</span>
-          <span class="streak-count">${streak}</span>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle dark mode">
+            ${isDarkMode ? '☀️' : '🌙'}
+          </button>
+          <div class="streak-badge" title="${streak} day streak">
+            <span aria-hidden="true">🔥</span>
+            <span class="streak-count">${streak}</span>
+          </div>
         </div>
       </header>
 
@@ -69,5 +82,16 @@ export function renderHome(container) {
   container.querySelector('#start-review')?.addEventListener('click', () => navigate('/review'));
   container.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.route));
+  });
+
+  container.querySelector('#dark-mode-toggle').addEventListener('click', () => {
+    const newDarkMode = !loadDarkMode();
+    saveDarkMode(newDarkMode);
+    if (newDarkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+    renderHome(container); // Re-render to update icon
   });
 }

@@ -1,4 +1,4 @@
-import { loadState } from '../lib/storage.js';
+import { loadState, loadDarkMode } from '../lib/storage.js';
 import { getPagesForJuz } from '../lib/quran.js';
 import { navigate } from '../router.js';
 
@@ -12,6 +12,14 @@ function toPageChips(nums) {
 export function renderStats(container) {
   const state = loadState();
   if (!state) { navigate('/onboarding'); return; }
+
+  // Apply dark mode class to body
+  const isDarkMode = loadDarkMode();
+  if (isDarkMode) {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
 
   const activePagesList = Object.values(state.pages).filter(p => p.active !== false);
   const activePages = activePagesList.length;

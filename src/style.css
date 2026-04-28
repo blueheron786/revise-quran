@@ -18,6 +18,56 @@
   --shadow:         0 1px 3px rgba(0,0,0,.08);
 }
 
+.dark {
+  --primary:        #4caf50;
+  --primary-dark:   #388e3c;
+  --primary-light:  #1b5e20;
+  --easy:           #66bb6a;
+  --hard:           #ff9800;
+  --many-mistakes:  #ef5350;
+  --bg:             #121212;
+  --card:           #1e1e1e;
+  --text:           #e0e0e0;
+  --text-muted:     #a0a0a0;
+  --border:         #333;
+  --shadow:         0 1px 3px rgba(0,0,0,.3);
+}
+
+/* Dark mode specific overrides */
+.dark .juz-tile,
+.dark .juz-add-tile,
+.dark .btn-rating,
+.dark .mode-btn {
+  background: #2a2a2a;
+  color: var(--text);
+}
+.dark .juz-tile:hover,
+.dark .juz-add-tile:hover,
+.dark .btn-rating:hover,
+.dark .mode-btn:not(.active):hover {
+  background: #3a3a3a;
+}
+.dark .juz-tile.selected,
+.dark .mode-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+.dark .selector-row:hover,
+.dark .page-check-label:has(input:checked),
+.dark .surah-group-header {
+  background: #2a2a2a;
+}
+.dark .surah-page-grid {
+  background: #1a1a1a;
+}
+.dark .bd-page-chip {
+  background: #2a2a2a;
+  color: var(--text);
+}
+.dark .bd-page-chip:hover {
+  border-color: var(--primary);
+}
+
 /* ============================================================
    RESET & BASE
    ============================================================ */
@@ -143,6 +193,21 @@ body {
 }
 .nav-btn.active,
 .nav-btn:hover { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+/* ============================================================
+   DARK MODE TOGGLE
+   ============================================================ */
+.dark-mode-toggle {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  transition: background 0.15s;
+  min-height: 44px;
+}
+.dark-mode-toggle:hover { background: var(--primary-light); }
 
 /* ============================================================
    ONBOARDING

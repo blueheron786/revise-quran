@@ -1,4 +1,4 @@
-import { loadState, saveState, todayStr } from '../lib/storage.js';
+import { loadState, saveState, todayStr, loadDarkMode } from '../lib/storage.js';
 import { buildSessionQueue, scheduleReview } from '../lib/srs.js';
 import { getPage } from '../lib/quran.js';
 import { navigate } from '../router.js';
@@ -6,6 +6,14 @@ import { navigate } from '../router.js';
 export function renderReview(container) {
   const state = loadState();
   if (!state) { navigate('/onboarding'); return; }
+
+  // Apply dark mode class to body
+  const isDarkMode = loadDarkMode();
+  if (isDarkMode) {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
 
   const queue = buildSessionQueue(state);
 

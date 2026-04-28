@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'hifz-v1';
+const DARK_MODE_KEY = 'hifz-dark-mode';
 
 export function loadState() {
   try {
@@ -15,6 +16,18 @@ export function saveState(state) {
 
 export function clearState() {
   localStorage.removeItem(STORAGE_KEY);
+}
+
+export function loadDarkMode() {
+  try {
+    return localStorage.getItem(DARK_MODE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function saveDarkMode(isDark) {
+  localStorage.setItem(DARK_MODE_KEY, String(isDark));
 }
 
 /**

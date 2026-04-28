@@ -109,10 +109,22 @@ export function buildSessionQueue(state) {
     }
   }
 
-  const quota = calcQuota(items.length);
-  return items
-    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
-    .slice(0, quota);
+  const quota = calcQuota(
+    items.reduce((sum, item) => sum + (item.type === 'surah' ? item.pageNums.length : 1), 0)
+  );
+  const sortedItems = items.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
+  // Select items until we've reached the page quota
+  const selectedItems = [];
+  let pageCount = 0;
+  for (const item of sortedItems) {
+    const itemPages = item.type === 'surah' ? item.pageNums.length : 1;
+    if (pageCount + itemPages > quota && pageCount > 0) break;
+    selectedItems.push(item);
+    pageCount += itemPages;
+  }
+
+  return selectedItems;
 }
 
 /**
