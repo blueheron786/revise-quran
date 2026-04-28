@@ -67,6 +67,11 @@
 .dark .bd-page-chip:hover {
   border-color: var(--primary);
 }
+.dark .streak-badge {
+  background: #2a2a2a;
+  border-color: #444;
+  color: var(--text);
+}
 
 /* ============================================================
    RESET & BASE
