@@ -14,7 +14,6 @@ export function renderHome(container) {
   const partialJuzCount = state.memorizedJuz.length - fullJuzCount;
   const queue = buildSessionQueue(state);
   const today = todayStr();
-  const overdueCount = Object.values(state.pages).filter(p => p.active !== false && p.dueDate <= today).length;
   const doneToday = state.streak.lastSessionDate === today;
   const streak = state.streak.current;
   const isDarkMode = loadDarkMode();
@@ -53,7 +52,6 @@ export function renderHome(container) {
             <h2>Today's Review</h2>
             <p class="quota-info">
               <strong>${queue.length}</strong> to review
-              ${overdueCount > 0 ? `<span class="overdue-badge">${overdueCount} overdue</span>` : ''}
             </p>
             <button class="btn-primary btn-large" id="start-review">Start Review</button>
           </div>
